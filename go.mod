@@ -1,3 +1,3 @@
 module github.com/MaksimPerv/Metric
 
-go 1.22
+go 1.23.7
