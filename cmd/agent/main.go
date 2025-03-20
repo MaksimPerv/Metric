@@ -22,7 +22,7 @@ func main() {
 			time.Sleep(cfg.PollInterval)
 		}
 	}()
-	time.Sleep(time.Second * 2)
+	//time.Sleep(time.Second * 2)
 	// Запуск отправки метрик
 	go func() {
 		for {
