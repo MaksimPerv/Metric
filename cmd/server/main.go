@@ -17,7 +17,6 @@ func run() error {
 	handler := hendlers.NewMetricsHandlers(storage)
 
 	http.HandleFunc("/update/", handler.UpdateMetric)
-	//http.HandleFunc("/get", handler.GetMetrics)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		return err
