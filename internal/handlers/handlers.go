@@ -3,7 +3,7 @@ package hendlers
 import (
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
-	"log"
+
 	"net/http"
 	"strconv"
 	"strings"
