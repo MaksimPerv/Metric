@@ -3,8 +3,7 @@ package hendlers
 import (
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
-	"log"
-
+	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
 	"strings"
@@ -40,9 +39,9 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("metrics not found"))
 		return
 	}
-	metricType := parts[2]
-	metricName := parts[3]
-	metricValue := parts[4]
+	metricType := chi.URLParam(r, "type")
+	metricName := chi.URLParam(r, "name")
+	metricValue := chi.URLParam(r, "value")
 	var metric models.Metric
 	metric.Name = metricName
 	switch metricType {
@@ -69,12 +68,38 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Content-Length", strconv.Itoa(len("Metric updated\n")))
 	w.Header().Set("Date", time.Now().Format(time.RFC1123))
-	log.Println(metric.Type, metric.Value)
+	//log.Println(metric.Type, metric.Value)
 	h.storage.UpdateMetric(metric)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Metric updated\n"))
 }
 
 func (h *MetricsHandlers) GetMetric(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+	metricName := chi.URLParam(r, "name")
+	metricType := chi.URLParam(r, "type")
 
+	result, ok := h.storage.GetMetric(metricName)
+	if (!ok) || (string(result.Type) != metricType) {
+		http.Error(w, "Not Found Metric", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Date", time.Now().Format(time.RFC1123))
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(getValueAsString(result.Value)))
+}
+
+func getValueAsString(value interface{}) string {
+	switch v := value.(type) {
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	default:
+		return ""
+	}
 }

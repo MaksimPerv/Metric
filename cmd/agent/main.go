@@ -4,16 +4,17 @@ import (
 	"github.com/MaksimPerv/Metric/config"
 	"github.com/MaksimPerv/Metric/internal/collector"
 	"github.com/MaksimPerv/Metric/internal/sender"
+	"github.com/go-resty/resty/v2"
 	"time"
 )
 
 func main() {
 	// Загрузка конфигурации
 	cfg := config.LoadConfig()
-
+	client := resty.New()
 	// Инициализация коллектора и отправителя
 	metricsCollector := collector.NewMetricCollector()
-	metricsSender := sender.NewMetricsSender(cfg.ServerAddress)
+	metricsSender := sender.NewMetricsSender(client, cfg.ServerAddress)
 
 	// Запуск сбора метрик
 	go func() {
