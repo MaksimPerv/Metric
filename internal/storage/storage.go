@@ -5,6 +5,7 @@ import "github.com/MaksimPerv/Metric/internal/models"
 type Storage interface {
 	UpdateMetric(metric models.Metric)
 	GetMetric(name string) (models.Metric, bool)
+	GetList() map[string]models.Metric
 }
 
 type MemStorage struct {
@@ -15,6 +16,10 @@ func NewMemStorage() *MemStorage {
 	return &MemStorage{
 		metrics: make(map[string]models.Metric),
 	}
+}
+
+func (s *MemStorage) GetList() map[string]models.Metric {
+	return s.metrics
 }
 
 func (s *MemStorage) UpdateMetric(metric models.Metric) {

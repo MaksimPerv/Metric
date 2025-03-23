@@ -1,6 +1,7 @@
 package hendlers
 
 import (
+	"fmt"
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
@@ -18,6 +19,20 @@ func NewMetricsHandlers(storage storage.Storage) *MetricsHandlers {
 	return &MetricsHandlers{
 		storage: storage,
 	}
+}
+
+func (h *MetricsHandlers) GetList(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+	result := h.storage.GetList()
+	strData := fmt.Sprintf("%v", result)
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Date", time.Now().Format(time.RFC1123))
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(strData))
+
 }
 
 func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {

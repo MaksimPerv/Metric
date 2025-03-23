@@ -8,36 +8,37 @@ import (
 )
 
 func main() {
-	run()
+	http.ListenAndServe(":8080", run())
 }
 
-func run() error {
+func run() chi.Router {
 
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 	handler := hendlers.NewMetricsHandlers(storage)
-	router.Route("/update", func(r chi.Router) {
+	router.Route("/", func(r chi.Router) {
 
-		r.Route("/{type}", func(r chi.Router) {
+		r.Get("/", handler.GetList)
 
-			r.Route("/{name}", func(r chi.Router) {
+		r.Route("/update", func(r chi.Router) {
 
-				r.Post("/{value}", handler.UpdateMetric)
+			r.Route("/{type}", func(r chi.Router) {
+
+				r.Route("/{name}", func(r chi.Router) {
+
+					r.Post("/{value}", handler.UpdateMetric)
+				})
 			})
 		})
-	})
 
-	router.Route("/value", func(r chi.Router) {
-		r.Route("/{type}", func(r chi.Router) {
+		r.Route("/value", func(r chi.Router) {
+			r.Route("/{type}", func(r chi.Router) {
 
-			r.Get("/{name}", handler.GetMetric)
+				r.Get("/{name}", handler.GetMetric)
+
+			})
 
 		})
-
 	})
-
-	if err := http.ListenAndServe(":8080", router); err != nil {
-		return err
-	}
-	return nil
+	return router
 }
