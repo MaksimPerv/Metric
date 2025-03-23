@@ -5,7 +5,6 @@ import (
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -41,15 +40,15 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
-	//if r.Header.Get("Content-Type") != "text/plain" {
-	//
-	//	http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
-	//	return
-	//}
-	//if r.Header.Get("Content-Length") != "0" {
-	//	http.Error(w, "Invalid Content-Length", http.StatusBadRequest)
-	//	return
-	//}
+	if r.Header.Get("Content-Type") != "text/plain" {
+
+		http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
+		return
+	}
+	if r.Header.Get("Content-Length") != "0" {
+		http.Error(w, "Invalid Content-Length", http.StatusBadRequest)
+		return
+	}
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) != 5 {
 		w.WriteHeader(http.StatusNotFound)
@@ -85,7 +84,7 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Content-Length", strconv.Itoa(len("Metric updated\n")))
 	w.Header().Set("Date", time.Now().Format(time.RFC1123))
-	log.Println(metric.Type, metric.Value)
+	//log.Println(metric.Type, metric.Value)
 	h.storage.UpdateMetric(metric)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Metric updated\n"))
