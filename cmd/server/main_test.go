@@ -14,8 +14,8 @@ func testRequest(t *testing.T, ts *httptest.Server, method, path string) (*http.
 	assert.NoError(t, err)
 	resp, err := ts.Client().Do(req)
 	assert.NoError(t, err)
-	defer resp.Body.Close()
 	respBody, err := io.ReadAll(resp.Body)
+	resp.Body.Close()
 	assert.NoError(t, err)
 	return resp, string(respBody)
 }
