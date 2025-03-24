@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/handlers"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
@@ -8,7 +9,8 @@ import (
 )
 
 func main() {
-	http.ListenAndServe(":8080", run())
+	serverconfig.ParseFlags()
+	http.ListenAndServe(serverconfig.FlagRunAddr, run())
 }
 
 func run() chi.Router {

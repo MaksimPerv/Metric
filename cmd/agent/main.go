@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/MaksimPerv/Metric/config"
+	"github.com/MaksimPerv/Metric/config/agentconfig"
 	"github.com/MaksimPerv/Metric/internal/collector"
 	"github.com/MaksimPerv/Metric/internal/sender"
 	"github.com/go-resty/resty/v2"
@@ -9,18 +9,18 @@ import (
 )
 
 func main() {
+	agentconfig.ParseFlags()
 	// Загрузка конфигурации
-	cfg := config.LoadConfig()
 	client := resty.New()
 	// Инициализация коллектора и отправителя
 	metricsCollector := collector.NewMetricCollector()
-	metricsSender := sender.NewMetricsSender(client, cfg.ServerAddress)
+	metricsSender := sender.NewMetricsSender(client, agentconfig.FlagRunAddr)
 
 	// Запуск сбора метрик
 	go func() {
 		for {
 			metricsCollector.Collect()
-			time.Sleep(cfg.PollInterval)
+			time.Sleep(agentconfig.PollInterval)
 		}
 	}()
 	time.Sleep(time.Second * 2)
@@ -29,7 +29,7 @@ func main() {
 		for {
 			metrics := metricsCollector.GetMetrics()
 			metricsSender.Send(metrics)
-			time.Sleep(cfg.ReportInterval)
+			time.Sleep(agentconfig.ReportInterval)
 		}
 	}()
 
