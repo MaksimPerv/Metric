@@ -36,7 +36,7 @@ func (s *MetricsSender) Send(m metric.Metrics) {
 func (s *MetricsSender) sendRequest(url string) {
 	resp, err := s.Client.R().SetHeader("Content-Type", "text/plain").Post(url)
 	if err != nil {
-		log.Printf("Error sending request123445566554: %v", err)
+		log.Printf("Error sending request: %v", err)
 		return
 	}
 	if resp.StatusCode() != http.StatusOK {
