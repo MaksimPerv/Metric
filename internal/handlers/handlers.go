@@ -40,11 +40,11 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
-	if r.Header.Get("Content-Type") != "text/plain" {
-
-		http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
-		return
-	}
+	//if r.Header.Get("Content-Type") != "text/plain" {
+	//
+	//	http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
+	//	return
+	//}
 	//if r.Header.Get("Content-Length") != "0" {
 	//	http.Error(w, "Invalid Content-Length", http.StatusBadRequest)
 	//	return
