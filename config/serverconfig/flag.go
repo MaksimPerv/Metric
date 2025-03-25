@@ -3,6 +3,7 @@ package serverconfig
 
 import (
 	"flag"
+	"os"
 	"strings"
 )
 
@@ -14,4 +15,9 @@ func ParseFlags() {
 
 	// Убедимся, что нет http:// в начале
 	FlagRunAddr = strings.TrimPrefix(FlagRunAddr, "http://")
+
+	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
+		FlagRunAddr = envRunAddr
+	}
+
 }
