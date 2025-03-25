@@ -22,13 +22,13 @@ func NewMetricsSender(client *resty.Client, serverAddress string) *MetricsSender
 func (s *MetricsSender) Send(m metric.Metrics) {
 	// Отправка метрик типа gauge
 	for name, value := range m.GaugeMetrics() {
-		url := s.serverAddress + "/update/gauge/" + name + "/" + strconv.FormatFloat(value, 'f', -1, 64)
+		url := "http://" + s.serverAddress + "/update/gauge/" + name + "/" + strconv.FormatFloat(value, 'f', -1, 64)
 		s.sendRequest(url)
 	}
 
 	// Отправка метрик типа counter
 	for name, value := range m.CounterMetrics() {
-		url := s.serverAddress + "/update/counter/" + name + "/" + strconv.FormatInt(value, 10)
+		url := "http://" + s.serverAddress + "/update/counter/" + name + "/" + strconv.FormatInt(value, 10)
 		s.sendRequest(url)
 	}
 }
