@@ -103,8 +103,8 @@ func (h *MetricsHandlers) GetMetric(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not Found Metric", http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	w.Header().Set("Date", time.Now().Format(time.RFC1123))
+	//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	//w.Header().Set("Date", time.Now().Format(time.RFC1123))
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(getValueAsString(result.Value)))
 }
