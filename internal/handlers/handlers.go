@@ -45,10 +45,10 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
 		return
 	}
-	if r.Header.Get("Content-Length") != "0" {
-		http.Error(w, "Invalid Content-Length", http.StatusBadRequest)
-		return
-	}
+	//if r.Header.Get("Content-Length") != "0" {
+	//	http.Error(w, "Invalid Content-Length", http.StatusBadRequest)
+	//	return
+	//}
 	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) != 5 {
 		w.WriteHeader(http.StatusNotFound)
