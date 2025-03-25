@@ -97,11 +97,11 @@ func (h *MetricsHandlers) GetMetric(w http.ResponseWriter, r *http.Request) {
 	metricName := chi.URLParam(r, "name")
 	//metricType := chi.URLParam(r, "type")
 
-	result, _ := h.storage.GetMetric(metricName)
-	//if (!ok) || (string(result.Type) != metricType) {
-	//	http.Error(w, "Not Found Metric", http.StatusNotFound)
-	//	return
-	//}
+	result, ok := h.storage.GetMetric(metricName)
+	if !ok {
+		http.Error(w, "Not Found Metric", http.StatusNotFound)
+		return
+	}
 	//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	//w.Header().Set("Date", time.Now().Format(time.RFC1123))
 	w.WriteHeader(http.StatusOK)
