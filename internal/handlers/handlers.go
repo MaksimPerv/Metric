@@ -7,7 +7,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -49,12 +48,12 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	//	http.Error(w, "Invalid Content-Length", http.StatusBadRequest)
 	//	return
 	//}
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) != 5 {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("metrics not found"))
-		return
-	}
+	//parts := strings.Split(r.URL.Path, "/")
+	//if len(parts) != 5 {
+	//	w.WriteHeader(http.StatusNotFound)
+	//	w.Write([]byte("metrics not found"))
+	//	return
+	//}
 	metricType := chi.URLParam(r, "type")
 	metricName := chi.URLParam(r, "name")
 	metricValue := chi.URLParam(r, "value")
@@ -96,13 +95,13 @@ func (h *MetricsHandlers) GetMetric(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	metricName := chi.URLParam(r, "name")
-	metricType := chi.URLParam(r, "type")
+	//metricType := chi.URLParam(r, "type")
 
-	result, ok := h.storage.GetMetric(metricName)
-	if (!ok) || (string(result.Type) != metricType) {
-		http.Error(w, "Not Found Metric", http.StatusNotFound)
-		return
-	}
+	result, _ := h.storage.GetMetric(metricName)
+	//if (!ok) || (string(result.Type) != metricType) {
+	//	http.Error(w, "Not Found Metric", http.StatusNotFound)
+	//	return
+	//}
 	//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	//w.Header().Set("Date", time.Now().Format(time.RFC1123))
 	w.WriteHeader(http.StatusOK)
