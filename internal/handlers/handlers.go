@@ -32,7 +32,6 @@ func (h *MetricsHandlers) GetList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Date", time.Now().Format(time.RFC1123))
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(strData))
-
 }
 
 func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
