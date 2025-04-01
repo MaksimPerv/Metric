@@ -22,7 +22,7 @@ func NewMetricsSender(client *resty.Client, serverAddress string) *MetricsSender
 	}
 }
 
-func (s *MetricsSender) SendJson(m metric.Metrics) {
+func (s *MetricsSender) SendJSON(m metric.Metrics) {
 	for name, value := range m.GaugeMetrics() {
 		url := "http://" + s.serverAddress + "/update"
 		metrics := models.Metrics{
@@ -32,7 +32,7 @@ func (s *MetricsSender) SendJson(m metric.Metrics) {
 			Value: &value,
 		}
 		obj, _ := json.Marshal(metrics)
-		s.sendJsonRequest(url, obj)
+		s.sendJSONRequest(url, obj)
 	}
 	for name, value := range m.CounterMetrics() {
 		url := "http://" + s.serverAddress + "/update"
@@ -43,11 +43,11 @@ func (s *MetricsSender) SendJson(m metric.Metrics) {
 			Value: nil,
 		}
 		obj, _ := json.Marshal(metrics)
-		s.sendJsonRequest(url, obj)
+		s.sendJSONRequest(url, obj)
 	}
 }
 
-func (s *MetricsSender) sendJsonRequest(url string, value []byte) {
+func (s *MetricsSender) sendJSONRequest(url string, value []byte) {
 	var result models.Metrics
 	resp, err := s.Client.R().SetHeader("Content-Type", "application/json").SetBody(value).SetResult(&result).Post(url)
 	if err != nil {

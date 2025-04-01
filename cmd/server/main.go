@@ -95,7 +95,7 @@ func run() chi.Router {
 
 		r.Route("/update", func(r chi.Router) {
 
-			r.Post("/", RequestLogger(handler.UpdateJsonMetric))
+			r.Post("/", RequestLogger(handler.UpdateJSONMetric))
 
 			r.Route("/{type}", func(r chi.Router) {
 
@@ -107,7 +107,7 @@ func run() chi.Router {
 		})
 
 		r.Route("/value", func(r chi.Router) {
-			r.Post("/", RequestLogger(handler.GetJsonMetric))
+			r.Post("/", RequestLogger(handler.GetJSONMetric))
 			r.Route("/{type}", func(r chi.Router) {
 
 				r.Get("/{name}", RequestLogger(handler.GetMetric))

@@ -120,7 +120,7 @@ func getValueAsString(value interface{}) string {
 	}
 }
 
-func (h *MetricsHandlers) UpdateJsonMetric(w http.ResponseWriter, r *http.Request) {
+func (h *MetricsHandlers) UpdateJSONMetric(w http.ResponseWriter, r *http.Request) {
 	var req models.Metrics
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Problem Body", http.StatusBadRequest)
@@ -158,7 +158,7 @@ func (h *MetricsHandlers) UpdateJsonMetric(w http.ResponseWriter, r *http.Reques
 	w.Write(response)
 }
 
-func (h *MetricsHandlers) GetJsonMetric(w http.ResponseWriter, r *http.Request) {
+func (h *MetricsHandlers) GetJSONMetric(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Content-Type") != "application/json" {
 		http.Error(w, "Not JSOn", http.StatusBadRequest)
 		return
