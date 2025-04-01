@@ -1,6 +1,7 @@
 package hendlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
@@ -117,4 +118,75 @@ func getValueAsString(value interface{}) string {
 	default:
 		return ""
 	}
+}
+
+func (h *MetricsHandlers) UpdateJsonMetric(w http.ResponseWriter, r *http.Request) {
+	var req models.Metrics
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Problem Body", http.StatusBadRequest)
+		return
+	}
+	var rawMetric models.Metric
+	switch req.MType {
+	case string(models.Gauge):
+		rawMetric = models.Metric{
+			Name:  req.ID,
+			Type:  models.Gauge,
+			Value: *req.Value,
+		}
+	case string(models.Counter):
+		rawMetric = models.Metric{
+			Name:  req.ID,
+			Type:  models.Counter,
+			Value: *req.Delta,
+		}
+
+	}
+	rawMetric = h.storage.UpdateMetric(rawMetric)
+
+	switch rawMetric.Type {
+	case models.Gauge:
+		*req.Value = rawMetric.Value.(float64)
+	case models.Counter:
+		*req.Delta = rawMetric.Value.(int64)
+	}
+	response, _ := json.Marshal(req)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+}
+
+func (h *MetricsHandlers) GetJsonMetric(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("Content-Type") != "application/json" {
+		http.Error(w, "Not JSOn", http.StatusBadRequest)
+		return
+	}
+	var req models.Metrics
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Not JSOn", http.StatusBadRequest)
+		return
+	}
+	metric, ok := h.storage.GetMetric(req.ID)
+	if !ok {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+	switch metric.Type {
+	case models.Gauge:
+
+		val, _ := metric.Value.(float64)
+		req.Value = &val
+	case models.Counter:
+		val, _ := metric.Value.(int64)
+		req.Delta = &val
+	}
+	response, _ := json.Marshal(req)
+	//log.Println(req)
+	w.Header().Set("Content-Type", "application/json")
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 }

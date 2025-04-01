@@ -1,6 +1,8 @@
 package sender
 
 import (
+	"encoding/json"
+	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/pkg/metric"
 	"github.com/go-resty/resty/v2"
 	"log"
@@ -19,6 +21,46 @@ func NewMetricsSender(client *resty.Client, serverAddress string) *MetricsSender
 		Client:        client,
 	}
 }
+
+func (s *MetricsSender) SendJson(m metric.Metrics) {
+	for name, value := range m.GaugeMetrics() {
+		url := "http://" + s.serverAddress + "/update"
+		metrics := models.Metrics{
+			ID:    name,
+			MType: "gauge",
+			Delta: nil,
+			Value: &value,
+		}
+		obj, _ := json.Marshal(metrics)
+		s.sendJsonRequest(url, obj)
+	}
+	for name, value := range m.CounterMetrics() {
+		url := "http://" + s.serverAddress + "/update"
+		metrics := models.Metrics{
+			ID:    name,
+			MType: "counter",
+			Delta: &value,
+			Value: nil,
+		}
+		obj, _ := json.Marshal(metrics)
+		s.sendJsonRequest(url, obj)
+	}
+}
+
+func (s *MetricsSender) sendJsonRequest(url string, value []byte) {
+	var result models.Metrics
+	resp, err := s.Client.R().SetHeader("Content-Type", "application/json").SetBody(value).SetResult(&result).Post(url)
+	if err != nil {
+		log.Printf("Error sending request: %v", err)
+		return
+	}
+	log.Println(result)
+	if resp.StatusCode() != http.StatusOK {
+		log.Printf("Server returned non-OK status: %d", resp.StatusCode())
+
+	}
+}
+
 func (s *MetricsSender) Send(m metric.Metrics) {
 	// Отправка метрик типа gauge
 	for name, value := range m.GaugeMetrics() {
