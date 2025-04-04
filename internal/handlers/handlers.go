@@ -6,7 +6,6 @@ import (
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -84,7 +83,7 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Content-Length", strconv.Itoa(len("Metric updated\n")))
 	w.Header().Set("Date", time.Now().Format(time.RFC1123))
-	log.Println(metric.Type, metric.Value)
+	//log.Println(metric.Type, metric.Value)
 	h.storage.UpdateMetric(metric)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Metric updated\n"))
@@ -126,7 +125,7 @@ func (h *MetricsHandlers) UpdateJSONMetric(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Problem Body", http.StatusBadRequest)
 		return
 	}
-	log.Println(req)
+	//log.Println(req)
 	var rawMetric models.Metric
 	switch req.MType {
 	case string(models.Gauge):
