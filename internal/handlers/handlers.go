@@ -126,6 +126,7 @@ func (h *MetricsHandlers) UpdateJSONMetric(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Problem Body", http.StatusBadRequest)
 		return
 	}
+	log.Println(req)
 	var rawMetric models.Metric
 	switch req.MType {
 	case string(models.Gauge):
@@ -155,6 +156,7 @@ func (h *MetricsHandlers) UpdateJSONMetric(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 
 	w.WriteHeader(http.StatusOK)
+	//log.Println(string(response))
 	w.Write(response)
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/handlers"
+	"github.com/MaksimPerv/Metric/internal/middleware"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -89,28 +90,29 @@ func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 	handler := hendlers.NewMetricsHandlers(storage)
+	router.Use(middleware.GzipMiddleware)
 	router.Route("/", func(r chi.Router) {
 
-		r.Get("/", RequestLogger(handler.GetList))
+		r.Get("/", (handler.GetList))
 
 		r.Route("/update", func(r chi.Router) {
 
-			r.Post("/", RequestLogger(handler.UpdateJSONMetric))
+			r.Post("/", (handler.UpdateJSONMetric))
 
 			r.Route("/{type}", func(r chi.Router) {
 
 				r.Route("/{name}", func(r chi.Router) {
 
-					r.Post("/{value}", RequestLogger(handler.UpdateMetric))
+					r.Post("/{value}", (handler.UpdateMetric))
 				})
 			})
 		})
 
 		r.Route("/value", func(r chi.Router) {
-			r.Post("/", RequestLogger(handler.GetJSONMetric))
+			r.Post("/", (handler.GetJSONMetric))
 			r.Route("/{type}", func(r chi.Router) {
 
-				r.Get("/{name}", RequestLogger(handler.GetMetric))
+				r.Get("/{name}", (handler.GetMetric))
 
 			})
 

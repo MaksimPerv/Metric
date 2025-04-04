@@ -1,6 +1,8 @@
 package sender
 
 import (
+	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/pkg/metric"
@@ -48,13 +50,17 @@ func (s *MetricsSender) SendJSON(m metric.Metrics) {
 }
 
 func (s *MetricsSender) sendJSONRequest(url string, value []byte) {
-	var result models.Metrics
-	resp, err := s.Client.R().SetHeader("Content-Type", "application/json").SetBody(value).SetResult(&result).Post(url)
+	var buf bytes.Buffer
+	zp := gzip.NewWriter(&buf)
+	zp.Write(value)
+	zp.Close()
+	//log.Println(string(buf.Bytes()))
+	resp, err := s.Client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetHeader("Accept-Encoding", "gzip").SetBody(buf.Bytes()).Post(url)
 	if err != nil {
 		log.Printf("Error sending request: %v", err)
 		return
 	}
-	log.Println(result)
+	log.Println(string(resp.Body()))
 	if resp.StatusCode() != http.StatusOK {
 		log.Printf("Server returned non-OK status: %d", resp.StatusCode())
 
@@ -86,3 +92,24 @@ func (s *MetricsSender) sendRequest(url string) {
 
 	}
 }
+
+//resp := s.Client.R().SetHeader("Content-Type", "application/json")
+//resp.Header.Set("Content-Encoding", "gzip")
+//var buf bytes.Buffer
+//gz := gzip.NewWriter(&buf)
+//_, err := gz.Write(value)
+//if err != nil {
+//panic(err)
+//}
+//gz.Close()
+//resp.SetBody(buf.Bytes())
+//response, err := resp.Post(url)
+//if err != nil {
+//log.Printf("Error sending request: %v", err)
+//return
+//}
+//log.Println(response)
+//if response.StatusCode() != http.StatusOK {
+//log.Printf("Server returned non-OK status: %d", response.StatusCode())
+//
+//}
