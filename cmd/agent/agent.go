@@ -29,7 +29,7 @@ func main() {
 		for {
 			metrics := metricsCollector.GetMetrics()
 			metricsSender.Send(metrics)
-			//metricsSender.SendJSON(metrics)
+			metricsSender.SendJSON(metrics)
 			time.Sleep(agentconfig.ReportInterval)
 		}
 	}()

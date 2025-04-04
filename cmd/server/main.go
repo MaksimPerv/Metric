@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/handlers"
+	"github.com/MaksimPerv/Metric/internal/middleware"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -89,7 +90,7 @@ func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 	handler := hendlers.NewMetricsHandlers(storage)
-	//router.Use(middleware.GzipMiddleware)
+	router.Use(middleware.GzipMiddleware)
 	router.Route("/", func(r chi.Router) {
 
 		r.Get("/", (handler.GetList))
