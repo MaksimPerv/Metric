@@ -28,7 +28,11 @@ func (h *MetricsHandlers) GetList(w http.ResponseWriter, r *http.Request) {
 	}
 	result := h.storage.GetList()
 	strData := fmt.Sprintf("%v", result)
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	if r.Header.Get("Content-Type") == "text/html" {
+		w.Header().Set("Content-Type", "text/html")
+	} else {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	}
 	w.Header().Set("Date", time.Now().Format(time.RFC1123))
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(strData))
