@@ -37,8 +37,8 @@ func (producer *Producer) Write(data map[string]models.Metric) error {
 	}
 	return nil
 }
-func (pr *Producer) Close() {
-	pr.file.Close()
+func (producer *Producer) Close() {
+	producer.file.Close()
 	return
 }
 
