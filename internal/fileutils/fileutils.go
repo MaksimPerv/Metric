@@ -39,7 +39,6 @@ func (producer *Producer) Write(data map[string]models.Metric) error {
 }
 func (producer *Producer) Close() {
 	producer.file.Close()
-	return
 }
 
 func (producer *Producer) Read() map[string]models.Metric {
