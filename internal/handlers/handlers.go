@@ -175,11 +175,11 @@ func (h *MetricsHandlers) GetJSONMetric(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Not JSOn", http.StatusBadRequest)
 		return
 	}
-	metric, ok := h.storage.GetMetric(req.ID)
-	if !ok {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
+	metric, _ := h.storage.GetMetric(req.ID)
+	//if !ok {
+	//	http.Error(w, "Not found", http.StatusNotFound)
+	//	return
+	//}
 	switch metric.Type {
 	case models.Gauge:
 
