@@ -42,17 +42,17 @@ func (producer *Producer) Close() {
 	return
 }
 
-func (producer *Producer) Read() (map[string]models.Metric, error) {
+func (producer *Producer) Read() map[string]models.Metric {
 	result := make(map[string]models.Metric)
 	// Сохраняем текущую позицию записи
 	currentPos, err := producer.file.Seek(0, io.SeekCurrent)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get current position: %w", err)
+		return nil
 	}
 
 	// Перемещаемся в начало для чтения
 	if _, err := producer.file.Seek(0, io.SeekStart); err != nil {
-		return nil, fmt.Errorf("failed to seek to start: %w", err)
+		return nil
 	}
 
 	// Восстанавливаем позицию после чтения
@@ -69,7 +69,7 @@ func (producer *Producer) Read() (map[string]models.Metric, error) {
 		}
 		result[metric.Name] = metric
 	}
-	return result, nil
+	return result
 }
 
 func (producer *Producer) WriteOne(data models.Metric) error {
