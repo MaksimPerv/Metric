@@ -97,8 +97,7 @@ func run() chi.Router {
 		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath)
 		defer fileutils.File.Close()
 		if serverconfig.Restore {
-			data, _ := fileutils.File.Read()
-			storage.Restore(data)
+			storage.Restore(fileutils.File.Read())
 		}
 		if serverconfig.StoreInterval != 0 {
 			log.Println(serverconfig.FileStoragePath)
