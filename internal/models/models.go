@@ -8,9 +8,9 @@ const (
 )
 
 type Metric struct {
-	Name  string
-	Type  MetricType
-	Value interface{}
+	Name  string      `json:"name"`
+	Type  MetricType  `json:"type"`
+	Value interface{} `json:"value"`
 }
 
 type Metrics struct {

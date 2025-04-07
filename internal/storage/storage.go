@@ -1,6 +1,11 @@
 package storage
 
-import "github.com/MaksimPerv/Metric/internal/models"
+import (
+	"github.com/MaksimPerv/Metric/config/serverconfig"
+	"github.com/MaksimPerv/Metric/internal/fileutils"
+	"github.com/MaksimPerv/Metric/internal/models"
+	"log"
+)
 
 type Storage interface {
 	UpdateMetric(metric models.Metric) models.Metric
@@ -29,6 +34,12 @@ func (s *MemStorage) UpdateMetric(metric models.Metric) models.Metric {
 		}
 	}
 	s.metrics[metric.Name] = metric
+	if serverconfig.StoreInterval == 0 {
+		err := fileutils.File.WriteOne(metric)
+		if err != nil {
+			log.Print(err)
+		}
+	}
 	return metric
 }
 

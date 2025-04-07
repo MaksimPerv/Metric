@@ -2,11 +2,13 @@ package main
 
 import (
 	"github.com/MaksimPerv/Metric/config/serverconfig"
+	"github.com/MaksimPerv/Metric/internal/fileutils"
 	"github.com/MaksimPerv/Metric/internal/handlers"
 	"github.com/MaksimPerv/Metric/internal/middleware"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
+	"log"
 	"net/http"
 	"time"
 )
@@ -81,8 +83,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
 	serverconfig.ParseFlags()
+
 	http.ListenAndServe(serverconfig.FlagRunAddr, run())
 }
 
@@ -90,6 +92,23 @@ func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 	handler := hendlers.NewMetricsHandlers(storage)
+
+	if serverconfig.FileStoragePath != "" {
+		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath, serverconfig.Restore)
+		if serverconfig.StoreInterval != 0 {
+			log.Println(serverconfig.FileStoragePath)
+			log.Println(serverconfig.StoreInterval)
+			go func() {
+				for {
+					err := fileutils.File.Write(storage.GetList())
+					if err != nil {
+						log.Print(err)
+					}
+					time.Sleep(serverconfig.StoreInterval)
+				}
+			}()
+		}
+	}
 	router.Use(middleware.GzipMiddleware)
 	router.Route("/", func(r chi.Router) {
 
