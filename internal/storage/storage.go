@@ -47,3 +47,7 @@ func (s *MemStorage) GetMetric(name string) (models.Metric, bool) {
 	metric, ok := s.metrics[name]
 	return metric, ok
 }
+
+func (s *MemStorage) Restore(data map[string]models.Metric) {
+	s.metrics = data
+}

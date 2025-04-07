@@ -1,8 +1,11 @@
 package fileutils
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"github.com/MaksimPerv/Metric/internal/models"
+	"io"
 	"os"
 )
 
@@ -13,14 +16,9 @@ type Producer struct {
 
 var File *Producer
 
-func NewProducer(name string, flag bool) (*Producer, error) {
-	var pr int
-	if flag {
-		pr = os.O_WRONLY | os.O_CREATE | os.O_APPEND | os.O_TRUNC
-	} else {
-		pr = os.O_WRONLY | os.O_CREATE | os.O_APPEND
-	}
-	file, err := os.OpenFile(name, pr, 0666)
+func NewProducer(name string) (*Producer, error) {
+
+	file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -31,8 +29,49 @@ func NewProducer(name string, flag bool) (*Producer, error) {
 }
 
 func (producer *Producer) Write(data map[string]models.Metric) error {
-	return producer.encode.Encode(data)
+	for _, value := range data {
+		err := producer.encode.Encode(value)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
+func (pr *Producer) Close() {
+	pr.file.Close()
+	return
+}
+
+func (producer *Producer) Read() (map[string]models.Metric, error) {
+	result := make(map[string]models.Metric)
+	// Сохраняем текущую позицию записи
+	currentPos, err := producer.file.Seek(0, io.SeekCurrent)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current position: %w", err)
+	}
+
+	// Перемещаемся в начало для чтения
+	if _, err := producer.file.Seek(0, io.SeekStart); err != nil {
+		return nil, fmt.Errorf("failed to seek to start: %w", err)
+	}
+
+	// Восстанавливаем позицию после чтения
+	defer func() {
+		_, _ = producer.file.Seek(currentPos, io.SeekStart)
+	}()
+	scanner := bufio.NewScanner(producer.file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		var metric models.Metric
+		if err := json.Unmarshal([]byte(line), &metric); err != nil {
+			fmt.Printf("Ошибка декодирования: %v\n", err)
+			continue
+		}
+		result[metric.Name] = metric
+	}
+	return result, nil
+}
+
 func (producer *Producer) WriteOne(data models.Metric) error {
 	return producer.encode.Encode(data)
 }

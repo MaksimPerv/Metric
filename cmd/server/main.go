@@ -94,7 +94,12 @@ func run() chi.Router {
 	handler := hendlers.NewMetricsHandlers(storage)
 
 	if serverconfig.FileStoragePath != "" {
-		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath, serverconfig.Restore)
+		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath)
+		defer fileutils.File.Close()
+		if serverconfig.Restore {
+			data, _ := fileutils.File.Read()
+			storage.Restore(data)
+		}
 		if serverconfig.StoreInterval != 0 {
 			log.Println(serverconfig.FileStoragePath)
 			log.Println(serverconfig.StoreInterval)
