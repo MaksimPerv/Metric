@@ -86,6 +86,7 @@ func main() {
 	serverconfig.ParseFlags()
 
 	http.ListenAndServe(serverconfig.FlagRunAddr, run())
+	defer fileutils.File.Close()
 }
 
 func run() chi.Router {
@@ -95,7 +96,7 @@ func run() chi.Router {
 
 	if serverconfig.FileStoragePath != "" {
 		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath)
-		defer fileutils.File.Close()
+		//defer fileutils.File.Close()
 		if serverconfig.Restore {
 			storage.Restore(fileutils.File.Read())
 		}
