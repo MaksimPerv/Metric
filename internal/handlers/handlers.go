@@ -1,10 +1,8 @@
 package hendlers
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/MaksimPerv/Metric/internal/db"
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
@@ -199,16 +197,16 @@ func (h *MetricsHandlers) GetJSONMetric(w http.ResponseWriter, r *http.Request) 
 	w.Write(response)
 }
 
-func (h *MetricsHandlers) Ping(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-		return
-	}
-	err := db.DB.PingContext(context.Background())
-	if err != nil {
-		http.Error(w, "Not connect", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(200)
-	w.Write([]byte("Connect OK"))
-}
+//func (h *MetricsHandlers) Ping(w http.ResponseWriter, r *http.Request) {
+//	if r.Method != http.MethodGet {
+//		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+//		return
+//	}
+//	err := db.DB.PingContext(context.Background())
+//	if err != nil {
+//		http.Error(w, "Not connect", http.StatusInternalServerError)
+//		return
+//	}
+//	w.WriteHeader(200)
+//	w.Write([]byte("Connect OK"))
+//}
