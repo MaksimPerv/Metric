@@ -13,6 +13,7 @@ var FlagRunAddr string
 var StoreInterval time.Duration
 var FileStoragePath string
 var Restore bool
+var DatabaseDSN string
 
 func ParseFlags() {
 	var StoreInervalStr string
@@ -20,6 +21,7 @@ func ParseFlags() {
 	flag.StringVar(&StoreInervalStr, "i", "300", "interval server for save metric in file")
 	flag.StringVar(&FileStoragePath, "f", "/tmp/metrics-db.json", "path file storage")
 	flag.BoolVar(&Restore, "r", true, "download or not last data")
+	flag.StringVar(&DatabaseDSN, "d", "", "Address DataBase")
 	flag.Parse()
 
 	// Убедимся, что нет http:// в начале
@@ -36,6 +38,9 @@ func ParseFlags() {
 	}
 	if envRestore := os.Getenv("RESTORE"); envRestore != "" {
 		Restore, _ = strconv.ParseBool(envRestore)
+	}
+	if envDataDSN := os.Getenv("DATABASE_DSN"); envDataDSN != "" {
+		DatabaseDSN = envDataDSN
 	}
 	StoreInterval, _ = time.ParseDuration(StoreInervalStr + "s")
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MaksimPerv/Metric/config/serverconfig"
+	"github.com/MaksimPerv/Metric/internal/db"
 	"github.com/MaksimPerv/Metric/internal/fileutils"
 	"github.com/MaksimPerv/Metric/internal/handlers"
 	"github.com/MaksimPerv/Metric/internal/middleware"
@@ -87,12 +88,17 @@ func main() {
 
 	http.ListenAndServe(serverconfig.FlagRunAddr, run())
 	defer fileutils.File.Close()
+	defer db.DB.Close()
 }
 
 func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 	handler := hendlers.NewMetricsHandlers(storage)
+	err := db.Init(serverconfig.DatabaseDSN)
+	if err != nil {
+		panic(err)
+	}
 
 	if serverconfig.FileStoragePath != "" {
 		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath)
@@ -118,6 +124,7 @@ func run() chi.Router {
 	router.Route("/", func(r chi.Router) {
 
 		r.Get("/", (handler.GetList))
+		r.Get("/ping", handler.Ping)
 
 		r.Route("/update", func(r chi.Router) {
 
