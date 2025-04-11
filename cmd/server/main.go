@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/db"
 	"github.com/MaksimPerv/Metric/internal/fileutils"
@@ -95,10 +96,6 @@ func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 	handler := hendlers.NewMetricsHandlers(storage)
-	err := db.Init(serverconfig.DatabaseDSN)
-	if err != nil {
-		panic(err)
-	}
 
 	if serverconfig.FileStoragePath != "" {
 		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath)
@@ -121,6 +118,25 @@ func run() chi.Router {
 		}
 	}
 	router.Use(middleware.GzipMiddleware)
+	err := db.Init(serverconfig.DatabaseDSN)
+	if err == nil {
+		router.Get("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodGet {
+				http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+				return
+			}
+			err := db.DB.PingContext(context.Background())
+			if err != nil {
+				http.Error(w, "Not connect", http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(200)
+			w.Write([]byte("Connect OK"))
+		}))
+	}
+	if err != nil {
+		panic(err)
+	}
 	router.Route("/", func(r chi.Router) {
 
 		r.Get("/", (handler.GetList))
