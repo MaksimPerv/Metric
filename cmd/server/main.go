@@ -140,7 +140,7 @@ func run() chi.Router {
 	router.Route("/", func(r chi.Router) {
 
 		r.Get("/", (handler.GetList))
-		r.Get("/ping", handler.Ping)
+		//r.Get("/ping", handler.Ping)
 
 		r.Route("/update", func(r chi.Router) {
 
