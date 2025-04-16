@@ -95,6 +95,7 @@ func main() {
 func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
+
 	handler := hendlers.NewMetricsHandlers(storage)
 
 	if serverconfig.FileStoragePath != "" {
