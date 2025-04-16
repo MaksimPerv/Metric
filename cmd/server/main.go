@@ -89,6 +89,7 @@ func main() {
 
 	http.ListenAndServe(serverconfig.FlagRunAddr, run())
 	defer fileutils.File.Close()
+
 	defer db.DB.Close()
 }
 
