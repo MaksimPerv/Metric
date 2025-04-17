@@ -5,7 +5,7 @@ import (
 	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/db"
 	"github.com/MaksimPerv/Metric/internal/fileutils"
-	"github.com/MaksimPerv/Metric/internal/handlers"
+	hendlers "github.com/MaksimPerv/Metric/internal/handlers"
 	"github.com/MaksimPerv/Metric/internal/middleware"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
@@ -97,8 +97,6 @@ func run() chi.Router {
 	storage := storage.NewMemStorage()
 	router := chi.NewRouter()
 
-	handler := hendlers.NewMetricsHandlers(storage)
-
 	if serverconfig.FileStoragePath != "" {
 		fileutils.File, _ = fileutils.NewProducer(serverconfig.FileStoragePath)
 		//defer fileutils.File.Close()
@@ -120,6 +118,7 @@ func run() chi.Router {
 		}
 	}
 	router.Use(middleware.GzipMiddleware)
+
 	err := db.Init(serverconfig.DatabaseDSN)
 	if err == nil {
 		router.Get("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -127,7 +126,7 @@ func run() chi.Router {
 				http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 				return
 			}
-			err := db.DB.PingContext(context.Background())
+			err = db.DB.PingContext(context.Background())
 			if err != nil {
 				http.Error(w, "Not connect", http.StatusInternalServerError)
 				return
@@ -139,6 +138,13 @@ func run() chi.Router {
 	if err != nil {
 		panic(err)
 	}
+	handler := hendlers.NewMetricsHandlers(storage)
+
+	database := db.Postgres{Database: db.DB}
+	if serverconfig.DatabaseDSN != "" {
+		handler = hendlers.NewMetricsHandlers(database)
+	}
+
 	router.Route("/", func(r chi.Router) {
 
 		r.Get("/", (handler.GetList))
@@ -164,7 +170,6 @@ func run() chi.Router {
 				r.Get("/{name}", (handler.GetMetric))
 
 			})
-
 		})
 	})
 
