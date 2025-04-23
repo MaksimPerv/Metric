@@ -106,11 +106,17 @@ func (p Postgres) GetMetric(name string) (models.Metric, bool) {
 	result.Name = name
 	if typeMetric == string(models.Counter) {
 		result.Type = models.Counter
-		currentValue, _ := strconv.ParseInt(valueMEtric, 10, 64)
+		currentValue, err1 := strconv.ParseInt(valueMEtric, 10, 64)
+		if err1 != nil {
+			return models.Metric{}, false
+		}
 		result.Value = currentValue
 	} else {
 		result.Type = models.Gauge
-		currentValue, _ := strconv.ParseFloat(valueMEtric, 64)
+		currentValue, err1 := strconv.ParseFloat(valueMEtric, 64)
+		if err1 != nil {
+			return models.Metric{}, false
+		}
 		result.Value = currentValue
 	}
 	return result, true
