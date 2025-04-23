@@ -224,7 +224,7 @@ func (h *MetricsHandlers) Updates(w http.ResponseWriter, r *http.Request) {
 			}
 
 		}
-		rawMetric = h.storage.UpdateMetric(rawMetric)
+		h.storage.UpdateMetric(rawMetric)
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Metric update"))
