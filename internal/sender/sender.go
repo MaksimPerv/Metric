@@ -116,7 +116,7 @@ func (s *MetricsSender) sendRequest(url string) {
 
 func (s *MetricsSender) SendsMetrics(m metric.Metrics) {
 	delta := m.CounterMetrics()
-	url := "http://" + s.serverAddress + "/updates/"
+	url := "http://" + s.serverAddress + "/updates"
 	value := m.GaugeMetrics()
 	var batch []models.Metrics
 	for name, v := range delta {
