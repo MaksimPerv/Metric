@@ -202,9 +202,14 @@ func (h *MetricsHandlers) Updates(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 		return
 	}
+
 	var req []models.Metrics
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Can't decode json", http.StatusBadRequest)
+		return
+	}
+	if len(req) == 0 {
+		http.Error(w, "Empty metrics array", http.StatusBadRequest)
 		return
 	}
 	for _, value := range req {
