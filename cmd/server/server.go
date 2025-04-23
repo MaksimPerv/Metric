@@ -150,6 +150,8 @@ func run() chi.Router {
 		r.Get("/", (handler.GetList))
 		//r.Get("/ping", handler.Ping)
 
+		r.Post("/updates/", handler.Updates)
+
 		r.Route("/update", func(r chi.Router) {
 
 			r.Post("/", (handler.UpdateJSONMetric))

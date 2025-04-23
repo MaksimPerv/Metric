@@ -197,6 +197,40 @@ func (h *MetricsHandlers) GetJSONMetric(w http.ResponseWriter, r *http.Request) 
 	w.Write(response)
 }
 
+func (h *MetricsHandlers) Updates(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+	var req []models.Metrics
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Can't decode json", http.StatusBadRequest)
+		return
+	}
+	for _, value := range req {
+		var rawMetric models.Metric
+		switch value.MType {
+		case string(models.Gauge):
+			rawMetric = models.Metric{
+				Name:  value.ID,
+				Type:  models.Gauge,
+				Value: *value.Value,
+			}
+		case string(models.Counter):
+			rawMetric = models.Metric{
+				Name:  value.ID,
+				Type:  models.Counter,
+				Value: *value.Delta,
+			}
+
+		}
+		rawMetric = h.storage.UpdateMetric(rawMetric)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Metric update"))
+
+}
+
 //func (h *MetricsHandlers) Ping(w http.ResponseWriter, r *http.Request) {
 //	if r.Method != http.MethodGet {
 //		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
