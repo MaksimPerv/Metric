@@ -211,12 +211,22 @@ func (h *MetricsHandlers) Updates(w http.ResponseWriter, r *http.Request) {
 		var rawMetric models.Metric
 		switch value.MType {
 		case string(models.Gauge):
+			if value.Value == nil {
+				http.Error(w, fmt.Sprintf("Value is required for gauge metric %s", value.ID),
+					http.StatusBadRequest)
+				return
+			}
 			rawMetric = models.Metric{
 				Name:  value.ID,
 				Type:  models.Gauge,
 				Value: *value.Value,
 			}
 		case string(models.Counter):
+			if value.Delta == nil {
+				http.Error(w, fmt.Sprintf("Delta is required for counter metric %s", value.ID),
+					http.StatusBadRequest)
+				return
+			}
 			rawMetric = models.Metric{
 				Name:  value.ID,
 				Type:  models.Counter,
