@@ -114,7 +114,7 @@ func (s *MetricsSender) sendRequest(url string) {
 //
 //}
 
-func (s *MetricsSender) SendsMetrics(m metric.Metrics) {
+func (s *MetricsSender) SendsMetrics(m metric.Metrics) error {
 	delta := m.CounterMetrics()
 	url := "http://" + s.serverAddress + "/updates/"
 	value := m.GaugeMetrics()
@@ -137,10 +137,11 @@ func (s *MetricsSender) SendsMetrics(m metric.Metrics) {
 		}
 		batch = append(batch, met)
 	}
-	s.sendMetricsBatch(url, batch)
+	err := s.sendMetricsBatch(url, batch)
+	return err
 
 }
-func (s *MetricsSender) sendMetricsBatch(url string, metrics []models.Metrics) {
+func (s *MetricsSender) sendMetricsBatch(url string, metrics []models.Metrics) error {
 	var buf bytes.Buffer
 	obj, _ := json.Marshal(metrics)
 	zp := gzip.NewWriter(&buf)
@@ -149,11 +150,11 @@ func (s *MetricsSender) sendMetricsBatch(url string, metrics []models.Metrics) {
 	resp, err := s.Client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetHeader("Accept-Encoding", "gzip").SetBody(buf.Bytes()).Post(url)
 	if err != nil {
 		log.Printf("Error sending request: %v", err)
-		return
+		return err
 	}
 	log.Println(string(resp.Body()))
 	if resp.StatusCode() != http.StatusOK {
 		log.Printf("Server returned non-OK status: %d", resp.StatusCode())
-
 	}
+	return nil
 }

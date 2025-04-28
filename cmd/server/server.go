@@ -7,6 +7,7 @@ import (
 	"github.com/MaksimPerv/Metric/internal/fileutils"
 	hendlers "github.com/MaksimPerv/Metric/internal/handlers"
 	"github.com/MaksimPerv/Metric/internal/middleware"
+	"github.com/MaksimPerv/Metric/internal/mistake"
 	"github.com/MaksimPerv/Metric/internal/storage"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -119,7 +120,10 @@ func run() chi.Router {
 	}
 	router.Use(middleware.GzipMiddleware)
 
-	err := db.Init(serverconfig.DatabaseDSN)
+	err := mistake.Retry(3, time.Second, func() error {
+		err := db.Init(serverconfig.DatabaseDSN)
+		return err
+	})
 	if err == nil {
 		router.Get("/ping", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Method != http.MethodGet {

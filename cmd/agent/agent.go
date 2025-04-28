@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MaksimPerv/Metric/config/agentconfig"
 	"github.com/MaksimPerv/Metric/internal/collector"
+	"github.com/MaksimPerv/Metric/internal/mistake"
 	"github.com/MaksimPerv/Metric/internal/sender"
 	"github.com/go-resty/resty/v2"
 	"time"
@@ -30,7 +31,13 @@ func main() {
 			metrics := metricsCollector.GetMetrics()
 			//metricsSender.Send(metrics)
 			//metricsSender.SendJSON(metrics)
-			metricsSender.SendsMetrics(metrics)
+			err := mistake.Retry(3, time.Second, func() error {
+				a := metricsSender.SendsMetrics(metrics)
+				return a
+			})
+			if err != nil {
+				panic(err)
+			}
 			time.Sleep(agentconfig.ReportInterval)
 		}
 	}()
