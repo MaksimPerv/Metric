@@ -62,7 +62,7 @@ func GzipMiddleware(h http.Handler) http.Handler {
 
 func SignatureMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if serverconfig.SecretKey != "" {
+		if serverconfig.SecretKey != "" && request.Header.Get("Hash") == "None" {
 			bodyDytes, err := io.ReadAll(request.Body)
 			if err != nil {
 				http.Error(writer, "Bad Request", http.StatusBadRequest)
