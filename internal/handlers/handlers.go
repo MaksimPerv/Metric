@@ -86,6 +86,8 @@ func (h *MetricsHandlers) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("this type not found"))
 	}
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Type", "application/json")
+
 	w.Header().Set("Content-Length", strconv.Itoa(len("Metric updated\n")))
 	w.Header().Set("Date", time.Now().Format(time.RFC1123))
 	//log.Println(metric.Type, metric.Value)

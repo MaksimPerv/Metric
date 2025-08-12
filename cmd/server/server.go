@@ -118,9 +118,9 @@ func run() chi.Router {
 			}()
 		}
 	}
-	router.Use(middleware.SignatureMiddleware)
 
 	router.Use(middleware.GzipMiddleware)
+	router.Use(middleware.SignatureMiddleware)
 
 	err := mistake.Retry(3, time.Second, func() error {
 		err := db.Init(serverconfig.DatabaseDSN)

@@ -153,7 +153,7 @@ func (s *MetricsSender) sendMetricsBatch(url string, metrics []models.Metrics) e
 	req := s.Client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetHeader("Accept-Encoding", "gzip").SetBody(buf.Bytes())
 
 	if agentconfig.SecretKey != "" {
-		hash := signature.ComputeHmacSha256(buf.Bytes(), agentconfig.SecretKey)
+		hash := signature.ComputeHmacSha256(obj, agentconfig.SecretKey)
 		req.SetHeader("HashSHA256", hash)
 	}
 
