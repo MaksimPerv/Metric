@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"github.com/MaksimPerv/Metric/config/agentconfig"
 	"github.com/MaksimPerv/Metric/internal/models"
+	"github.com/MaksimPerv/Metric/internal/signature"
 	"github.com/MaksimPerv/Metric/pkg/metric"
 	"github.com/go-resty/resty/v2"
 	"log"
@@ -147,7 +149,16 @@ func (s *MetricsSender) sendMetricsBatch(url string, metrics []models.Metrics) e
 	zp := gzip.NewWriter(&buf)
 	zp.Write(obj)
 	zp.Close()
-	resp, err := s.Client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetHeader("Accept-Encoding", "gzip").SetBody(buf.Bytes()).Post(url)
+
+	req := s.Client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetHeader("Accept-Encoding", "gzip").SetBody(buf.Bytes())
+
+	if agentconfig.SecretKey != "" {
+		hash := signature.ComputeHmacSha256(buf.Bytes(), agentconfig.SecretKey)
+		req.SetHeader("HashSHA256", hash)
+	}
+
+	resp, err := req.Post(url)
+
 	if err != nil {
 		log.Printf("Error sending request: %v", err)
 		return err

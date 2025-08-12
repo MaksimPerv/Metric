@@ -1,7 +1,10 @@
 package middleware
 
 import (
+	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/compresses"
+	"github.com/MaksimPerv/Metric/internal/signature"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -54,5 +57,36 @@ func GzipMiddleware(h http.Handler) http.Handler {
 		}
 		// передаём управление хендлеру
 		h.ServeHTTP(ow, r)
+	})
+}
+
+func SignatureMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if serverconfig.SecretKey != "" {
+			bodyDytes, err := io.ReadAll(request.Body)
+			if err != nil {
+				http.Error(writer, "Bad Request", http.StatusBadRequest)
+				return
+			}
+			request.Body = io.NopCloser(strings.NewReader(string(bodyDytes)))
+
+			receivedHash := request.Header.Get("HashSHA256")
+
+			computedHash := signature.ComputeHmacSha256(bodyDytes, serverconfig.SecretKey)
+
+			if receivedHash != computedHash {
+				http.Error(writer, "Invalid hash", http.StatusBadRequest)
+				return
+			}
+		}
+
+		crw := &signature.CapturingResponseWriter{ResponseWriter: writer}
+
+		h.ServeHTTP(crw, request)
+
+		if serverconfig.SecretKey != "" && len(crw.Body) > 0 {
+			responseHash := signature.ComputeHmacSha256(crw.Body, serverconfig.SecretKey)
+			writer.Header().Set("HashSHA256", responseHash)
+		}
 	})
 }

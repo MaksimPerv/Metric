@@ -118,6 +118,8 @@ func run() chi.Router {
 			}()
 		}
 	}
+	router.Use(middleware.SignatureMiddleware)
+
 	router.Use(middleware.GzipMiddleware)
 
 	err := mistake.Retry(3, time.Second, func() error {
