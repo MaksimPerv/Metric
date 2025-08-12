@@ -109,6 +109,8 @@ func (h *MetricsHandlers) GetMetric(w http.ResponseWriter, r *http.Request) {
 	}
 	//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	//w.Header().Set("Date", time.Now().Format(time.RFC1123))
+	w.Header().Set("Content-Type", "application/json")
+
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(getValueAsString(result.Value)))
 }
