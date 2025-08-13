@@ -169,3 +169,31 @@ func (s *MetricsSender) sendMetricsBatch(url string, metrics []models.Metrics) e
 	}
 	return nil
 }
+
+func (s *MetricsSender) SendMemMetricsBatch(metrics []models.Metrics) error {
+	url := "http://" + s.serverAddress + "/updates/"
+	var buf bytes.Buffer
+	obj, _ := json.Marshal(metrics)
+	zp := gzip.NewWriter(&buf)
+	zp.Write(obj)
+	zp.Close()
+
+	req := s.Client.R().SetHeader("Content-Type", "application/json").SetHeader("Content-Encoding", "gzip").SetHeader("Accept-Encoding", "gzip").SetBody(buf.Bytes())
+
+	if agentconfig.SecretKey != "" {
+		hash := signature.ComputeHmacSha256(obj, agentconfig.SecretKey)
+		req.SetHeader("HashSHA256", hash)
+	}
+
+	resp, err := req.Post(url)
+
+	if err != nil {
+		log.Printf("Error sending request: %v", err)
+		return err
+	}
+	log.Println(string(resp.Body()))
+	if resp.StatusCode() != http.StatusOK {
+		log.Printf("Server returned non-OK status: %d", resp.StatusCode())
+	}
+	return nil
+}

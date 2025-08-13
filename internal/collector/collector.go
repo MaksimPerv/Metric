@@ -1,7 +1,9 @@
 package collector
 
 import (
+	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/pkg/metric"
+	"github.com/shirou/gopsutil/v4/mem"
 	"math/rand"
 	"runtime"
 	"sync"
@@ -64,4 +66,37 @@ func (c *MetricCollector) GetMetrics() metric.Metrics {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.metrics
+}
+func GetMemMetric() []models.Metrics {
+	v, _ := mem.VirtualMemory()
+	var batch []models.Metrics
+	TotalMemory := new(float64)
+	*TotalMemory = float64(v.Total)
+	tot := models.Metrics{
+		ID:    "TotalMemory",
+		MType: "gauge",
+		Delta: nil,
+		Value: TotalMemory,
+	}
+	batch = append(batch, tot)
+
+	FreeMemory := new(float64)
+	*FreeMemory = float64(v.Free)
+	fre := models.Metrics{
+		ID:    "FreeMemory",
+		MType: "gauge",
+		Delta: nil,
+		Value: TotalMemory,
+	}
+	batch = append(batch, fre)
+
+	CPUutilization1 := float64(v.UsedPercent)
+	cpu := models.Metrics{
+		ID:    "CPUutilization1",
+		MType: "gauge",
+		Delta: nil,
+		Value: &CPUutilization1,
+	}
+	batch = append(batch, cpu)
+	return batch
 }
