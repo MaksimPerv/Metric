@@ -10,7 +10,7 @@ var FlagRunAddr string
 var ReportInterval time.Duration
 var PollInterval time.Duration
 var SecretKey string
-var Rate_Limit string
+var RateLimit string
 
 func ParseFlags() {
 	var reportIntervalStr string
@@ -19,7 +19,7 @@ func ParseFlags() {
 	flag.StringVar(&reportIntervalStr, "r", "10", "reporting interval (e.g. 30s, 5m)")
 	flag.StringVar(&SecretKey, "k", "", "SecretKey")
 	flag.StringVar(&pollIntervalStr, "p", "2", "pooll")
-	flag.StringVar(&Rate_Limit, "l", "1", "Worker Poll")
+	flag.StringVar(&RateLimit, "l", "1", "Worker Poll")
 	flag.Parse()
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
 		FlagRunAddr = envRunAddr
@@ -35,7 +35,7 @@ func ParseFlags() {
 		SecretKey = envSecretKey
 	}
 	if envRateLimit := os.Getenv("RATE_LIMIT"); envRateLimit != "" {
-		Rate_Limit = envRateLimit
+		RateLimit = envRateLimit
 	}
 
 	ReportInterval, _ = time.ParseDuration(reportIntervalStr + "s")

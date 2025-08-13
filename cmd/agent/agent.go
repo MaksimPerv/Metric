@@ -19,7 +19,7 @@ func main() {
 	// Инициализация коллектора и отправителя
 	metricsCollector := collector.NewMetricCollector()
 	metricsSender := sender.NewMetricsSender(client, agentconfig.FlagRunAddr)
-	rateLimit, _ := strconv.Atoi(agentconfig.Rate_Limit)
+	rateLimit, _ := strconv.Atoi(agentconfig.RateLimit)
 	// Запуск сбора метрик
 	go func() {
 		for {
