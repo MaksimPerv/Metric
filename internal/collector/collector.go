@@ -3,7 +3,7 @@ package collector
 import (
 	"github.com/MaksimPerv/Metric/internal/models"
 	"github.com/MaksimPerv/Metric/pkg/metric"
-	"github.com/shirou/gopsutil/v4/mem"
+	"github.com/shirou/gopsutil/v3/mem"
 	"math/rand"
 	"runtime"
 	"sync"
