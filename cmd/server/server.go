@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/MaksimPerv/Metric/config/serverconfig"
 	"github.com/MaksimPerv/Metric/internal/db"
 	"github.com/MaksimPerv/Metric/internal/fileutils"
-	hendlers "github.com/MaksimPerv/Metric/internal/handlers"
+	"github.com/MaksimPerv/Metric/internal/handlers"
 	"github.com/MaksimPerv/Metric/internal/middleware"
 	"github.com/MaksimPerv/Metric/internal/mistake"
 	"github.com/MaksimPerv/Metric/internal/storage"
@@ -13,6 +14,10 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
+	"runtime/pprof"
 	"time"
 )
 
@@ -82,16 +87,35 @@ func RequestLogger(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 func main() {
-	err := Initalize()
+	projectRoot, err := filepath.Abs("../..")
+	if err != nil {
+		panic(fmt.Errorf("failed to get project root: %v", err))
+	}
+	filePath := filepath.Join(projectRoot, "internal", "profiles", "base.pprof")
+	fmem, err := os.Create(filePath)
+	if err != nil {
+		panic(err)
+	}
+
+	err = Initalize()
 	if err != nil {
 		panic(err)
 	}
 	serverconfig.ParseFlags()
 
-	http.ListenAndServe(serverconfig.FlagRunAddr, run())
+	go func() {
+		http.ListenAndServe(serverconfig.FlagRunAddr, run())
+	}()
 	defer fileutils.File.Close()
 
 	defer db.DB.Close()
+
+	time.Sleep(5 * time.Second)
+	runtime.GC()
+	pprof.WriteHeapProfile(fmem)
+
+	select {}
+
 }
 
 func run() chi.Router {
